@@ -1,0 +1,81 @@
+server:
+  port: 8084
+
+springdoc:
+  api-docs:
+    path: /rb-view-receipt-openapi
+  swagger-ui:
+    path: /rakbank/api/view-receipt/swagger-ui.html
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: always
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      studentService:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+      feeReceiptsByStudentIdService:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+      feeReceiptsByReferenceIdService:
+        registerHealthIndicator: true
+        eventConsumerBufferSize: 10
+        failureRateThreshold: 50
+        minimumNumberOfCalls: 5
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        waitDurationInOpenState: 5s
+        permittedNumberOfCallsInHalfOpenState: 3
+        slidingWindowSize: 10
+        slidingWindowType: COUNT_BASED
+
+  retry:
+    instances:
+      studentService:
+        maxRetryAttempts: 3
+        waitDuration: 1s
+
+      feeReceiptsByStudentIdService:
+        maxRetryAttempts: 3
+        waitDuration: 1s
+
+      feeReceiptsByReferenceIdService:
+        maxRetryAttempts: 3
+        waitDuration: 1s
+
+
+view-receipt:
+  service:
+    student:
+      url: http://localhost:8080/rakbank/api/student/
+    fee-collect:
+      getByStudentId:
+        url: http://localhost:8082/rakbank/api/fee/student/
+      getByReferenceId:
+        url: http://localhost:8082/rakbank/api/fee/
